@@ -1,30 +1,27 @@
-const bodyParser = require('body-parser');
 const express = require('express');
-const cors = require('cors');
-const Produto = require('./model/produto');	
+const app = express();
+const Produto = require("./model/produto");
 
-app = express();
 const produtos = [];
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.post('/api/produto', async (req, res) => {
-    
-    let id = req.body.id;
-    let nome = req.body.nome;
-    let preco = req.body.preco;
-    let descricao = req.body.descricao;
-
-    let prod = new Produto(id, nome, preco, descricao);
-    
-    console.log("estou no projeto \n" , prod);
-
-    return res.status(200).json({"nome":prod.nome, "mensagem" : "Produto cadastrado com sucesso!"});
-
+app.post('/api/produto', (req, res) => {
+ try{
+  let produto = new Produto(req.body.id, req.body.nome, req.body.preco, req.body.descricao)
+  let json1 = produto.toJson();
+  produtos.push({json1});
+  console.log(json1);
+  return res.status(201).send({ message: 'Produto adicionado com sucesso!' });
+ }catch(error){
+   return res.status(5000).send({ 'error': error.message });
+ }
 });
 
-app.listen(3030, () => {
-    console.log('Server running on port 3030');
+app.get('/api/produto', (req, res) => {
+     return res.status(200).send({ "produtos": produtos });
+})
+
+app.listen(3400, () => {
+  console.log("Projeto Produto rodando na porta 3400");
 });
